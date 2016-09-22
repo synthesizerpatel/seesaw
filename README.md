@@ -6,10 +6,12 @@ Note: This is not an official Google product.
 
 ## About
 
-Seesaw v2 is a Linux Virtual Server (LVS) based load balancing platform.
+Seesaw v2 is a Linux Virtual Server [(LVS)](https://linuxvirtualserver.org) based 
+[load balancing](https://en.wikipedia.org/wiki/Load_balancing) platform written in 
+[Go](https://golang.org).
 
 It is capable of providing basic load balancing for servers that are on the
-same network, through to advanced load balancing functionality such as anycast,
+same network, through to advanced load balancing functionality such as [anycast](https://en.wikipedia.org/wiki/Anycast),
 Direct Server Return (DSR), support for multiple VLANs and centralised
 configuration.
 
@@ -22,51 +24,71 @@ physical machines or virtual instances. Each node must have two network
 interfaces - one for the host itself and the other for the cluster VIP. All
 four interfaces should be connected to the same layer 2 network.
 
+## Prerequisites 
+
+### Tools
+
+- [golang](http://golang.org) >= 1.5
+
+### Libraries
+
+|Compile   	            |Runtime   	         |Package   	                                                                          |
+|---                    |---	               |---	                                                                                  |
+|  :white_check_mark:   | :white_check_mark: | [libnl](https://www.infradead.org/~tgr/libnl/)   	                                  |
+|  :white_check_mark:   |                    | [Go protobuf compiler](https://github.com/golang/protobuf/protoc-gen-go/)           |
+|  :white_check_mark:   |                    | [golang.org/x/crypto/ssh](http://godoc.org/golang.org/x/crypto/ssh)                  |
+|  :white_check_mark:   |                    | [github.com/dlintw/goconf](http://godoc.org/github.com/dlintw/goconf)                |
+|  :white_check_mark:   |                    | [github.com/golang/glog](http://godoc.org/github.com/golang/glog)                    |
+|  :white_check_mark:   |                    | [github.com/golang/protobuf/proto](http://godoc.org/github.com/golang/protobuf/proto)|
+|  :white_check_mark:   |                    | [github.com/dlintw/goconf](http://godoc.org/github.com/dlintw/goconf)                |
+|  :white_check_mark:   |                    | [github.com/miekg/dns](http://godoc.org/github.com/miekg/dns)                        |
+
+:grey_question: [Go protobuf compiler](https://github.com/golang/protobuf/protoc-gen-go/) is optional
+
 ## Building
 
-Seesaw v2 is developed in Go and depends on several Go packages:
+On a Debian/Ubuntu style system, you can install the required tools using apt-get
 
-- [golang.org/x/crypto/ssh](http://godoc.org/golang.org/x/crypto/ssh)
-- [github.com/dlintw/goconf](http://godoc.org/github.com/dlintw/goconf)
-- [github.com/golang/glog](http://godoc.org/github.com/golang/glog)
-- [github.com/golang/protobuf/proto](http://godoc.org/github.com/golang/protobuf/proto)
-- [github.com/miekg/dns](http://godoc.org/github.com/miekg/dns)
+```bash
+  apt-get install -y \
+    golang           \
+    libnl-3-dev      \
+    libnl-genl-3-dev \
+    git              \
+    make
+```
 
-Additionally, there is a compile and runtime dependency on
-[libnl](https://www.infradead.org/~tgr/libnl/) and a compile time dependency on
-the Go protobuf compiler.
+Setup your `GOPATH` and `GOROOT` environment variables and update 
+your PATH.
 
-On a Debian/Ubuntu style system, you should be able to prepare for building
-by running:
+```bash
+  export GOPATH=~/go
+  export GOROOT=/usr/local/go
+  export PATH=${GOROOT}/bin:${GOPATH}/bin:${PATH}
+```
 
-    apt-get install golang
-    apt-get install libnl-3-dev libnl-genl-3-dev
+### Download all of the golang libraries required by the project
 
-If your distro has a go version before 1.5, you may need to fetch a newer
-release from https://golang.org/dl/.
+```bash
+  go get -u golang.org/x/crypto/ssh
+  go get -u github.com/dlintw/goconf
+  go get -u github.com/golang/glog
+  go get -u github.com/miekg/dns
+  go get -u github.com/kylelemons/godebug/pretty
+  go get github.com/google/seesaw
+````
 
-After setting `GOPATH` to an appropriate location (for example `~/go`):
+### Build [seesaw](http://github.com/google/seesaw)
 
-    go get -u golang.org/x/crypto/ssh
-    go get -u github.com/dlintw/goconf
-    go get -u github.com/golang/glog
-    go get -u github.com/miekg/dns
-    go get -u github.com/kylelemons/godebug/pretty
 
-Ensure that `${GOPATH}/bin` is in your `${PATH}` and in the seesaw directory:
-
-    make test
-    make install
-
-If you wish to regenerate the protobuf code, the protobuf compiler and Go
-protobuf compiler generator are also needed:
-
-    apt-get install protobuf-compiler
-    go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
-
-The protobuf code can then be regenerated with:
-
-    make proto
+```bash
+  make test
+  
+  make install
+  
+  # optionally if you wish to regenerate the protobuf code, you can run:
+  make proto 
+```
 
 ## Installing
 
