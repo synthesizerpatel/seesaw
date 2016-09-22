@@ -24,6 +24,7 @@ physical machines or virtual instances. Each node must have two network
 interfaces - one for the host itself and the other for the cluster VIP. All
 four interfaces should be connected to the same layer 2 network.
 
+----
 ## Prerequisites 
 
 ### Tools
@@ -35,17 +36,16 @@ four interfaces should be connected to the same layer 2 network.
 |Compile   	            |Runtime   	         |Package   	                                                                          |
 |---                    |---	               |---	                                                                                  |
 |  :white_check_mark:   | :white_check_mark: | [libnl](https://www.infradead.org/~tgr/libnl/)   	                                  |
-|  :white_check_mark:   |                    | [Go protobuf compiler](https://github.com/golang/protobuf/protoc-gen-go/)           |
 |  :white_check_mark:   |                    | [golang.org/x/crypto/ssh](http://godoc.org/golang.org/x/crypto/ssh)                  |
 |  :white_check_mark:   |                    | [github.com/dlintw/goconf](http://godoc.org/github.com/dlintw/goconf)                |
 |  :white_check_mark:   |                    | [github.com/golang/glog](http://godoc.org/github.com/golang/glog)                    |
 |  :white_check_mark:   |                    | [github.com/golang/protobuf/proto](http://godoc.org/github.com/golang/protobuf/proto)|
+|  :white_check_mark:   |                    | [Go protobuf compiler](https://github.com/golang/protobuf/protoc-gen-go/ :grey_question: Optional)           |
 |  :white_check_mark:   |                    | [github.com/dlintw/goconf](http://godoc.org/github.com/dlintw/goconf)                |
 |  :white_check_mark:   |                    | [github.com/miekg/dns](http://godoc.org/github.com/miekg/dns)                        |
 
-:grey_question: [Go protobuf compiler](https://github.com/golang/protobuf/protoc-gen-go/) is optional
-
-## Building
+----
+## Get tools, libraries and source code
 
 On a Debian/Ubuntu style system, you can install the required tools using apt-get
 
@@ -55,11 +55,11 @@ On a Debian/Ubuntu style system, you can install the required tools using apt-ge
     libnl-3-dev      \
     libnl-genl-3-dev \
     git              \
+    lib2cap          \
     make
 ```
 
-Setup your `GOPATH` and `GOROOT` environment variables and update 
-your PATH.
+If you haven't setup golang before, you must setup your GOPATH and GOROOT environment variables and update your $PATH accordingly.
 
 ```bash
   export GOPATH=~/go
@@ -67,7 +67,7 @@ your PATH.
   export PATH=${GOROOT}/bin:${GOPATH}/bin:${PATH}
 ```
 
-### Download all of the golang libraries required by the project
+Retrieve all golang libraries the the seesaw source code
 
 ```bash
   go get -u golang.org/x/crypto/ssh
@@ -78,24 +78,28 @@ your PATH.
   go get github.com/google/seesaw
 ````
 
-### Build [seesaw](http://github.com/google/seesaw)
+## Compile
 
 
 ```bash
+
   make test
-  
   make install
   
-  # optionally if you wish to regenerate the protobuf code, you can run:
-  make proto 
+  # if you wish to regenerate the protobuf code, you can run 
+  # make proto. This is unnecessary unless you have modified the
+  # protobuf message definition schema.
+
+  make proto
 ```
 
-## Installing
+## Install
 
 After `make install` has run successfully, there should be a number of
 binaries in `${GOPATH}/bin` with a `seesaw_` prefix. Install these to the
 appropriate locations:
 
+```
     SEESAW_BIN="/usr/local/seesaw"
     SEESAW_ETC="/etc/seesaw"
     SEESAW_LOG="/var/log/seesaw"
@@ -121,10 +125,10 @@ appropriate locations:
     # Enable CAP_NET_RAW for seesaw binaries that require raw sockets.
     /sbin/setcap cap_net_raw+ep "${SEESAW_BIN}/seesaw_ha"
     /sbin/setcap cap_net_raw+ep "${SEESAW_BIN}/seesaw_healthcheck"
+```
 
-The `setcap` binary can be found in the libcap2-bin package on Debian/Ubuntu.
 
-## Configuring
+## Configuration
 
 Each node needs a `/etc/seesaw/seesaw.cfg` configuration file, which provides
 information about the node and who its peer is. Additionally, each load
